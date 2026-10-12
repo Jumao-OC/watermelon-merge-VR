@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>合成大西瓜 · 全功能版</title>
+    <title>合成大西瓜·VR版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
@@ -33,19 +33,44 @@
             max-width: 1300px;
             width: 100%;
         }
+        .side-column {
+            width: 248px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: calc(100vh - 16px);
+        }
         .sidebar {
             background: #fbe9d2;
             border-radius: 28px;
             box-shadow: 0 15px 22px rgba(0,0,0,0.5), inset 0 1px 6px rgba(255,255,200,0.6);
             padding: 14px 10px;
             border: 3px solid #b48b5a;
-            width: 210px;
+            width: 248px;
             display: flex;
             flex-direction: column;
             gap: 7px;
             max-height: 80vh;
             overflow-y: auto;
             flex-shrink: 0;
+        }
+        .side-column > .sidebar {
+            width: 100%;
+            max-height: none;
+        }
+        .side-column > #sidebar {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+        .side-actions {
+            flex: 0 0 auto;
+            overflow: visible;
+        }
+        .side-actions .global-actions {
+            margin-top: 0;
+            border-top: none;
+            padding-top: 0;
         }
         .sidebar h3 {
             color: #4e2e1a;
@@ -145,14 +170,14 @@
             display: flex;
             gap: 4px;
         }
-        .upload-btn, .clear-btn {
+        .upload-btn, .clear-btn, .sound-btn {
             flex: 1;
             padding: 3px 0;
             border-radius: 30px;
             border: none;
             font-family: 'Quicksand', sans-serif;
             font-weight: 700;
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             cursor: pointer;
             transition: all 0.1s;
             display: flex;
@@ -162,9 +187,13 @@
             box-shadow: 0 1px 0 #9b6d3f;
             border: 1px solid #f5dbb0;
             color: #2c1a0b;
+            white-space: nowrap;
         }
         .upload-btn { background: #e7b87b; }
         .upload-btn:active { transform: translateY(1px); box-shadow: 0 0 0 #9b6d3f; }
+        .sound-btn { background: #b7d7ea; }
+        .sound-btn.has-sound { background: #7ec8e3; }
+        .sound-btn:active { transform: translateY(1px); box-shadow: 0 0 0 #9b6d3f; }
         .clear-btn { background: #dbbd94; box-shadow: 0 1px 0 #9b6d3f; }
         .clear-btn:active { transform: translateY(1px); box-shadow: 0 0 0 #9b6d3f; }
         .global-actions {
@@ -198,6 +227,34 @@
         .global-btn.export { background: #b8c9e8; }
         .global-btn.bg { background: #e8b8d8; }
         .global-btn.music { background: #c9b8e8; }
+        .global-btn.preset-save { background: #f3d27a; }
+        .preset-row { display: flex; flex-wrap: wrap; gap: 5px; }
+        .preset-item {
+            flex: 0 0 calc(50% - 3px);
+            display: flex;
+            gap: 4px;
+            align-items: stretch;
+            min-width: 0;
+        }
+        .preset-item .global-btn { flex: 1 1 auto; min-width: 0; padding: 6px 2px; }
+        .preset-delete {
+            display: none;
+            flex: 0 0 28px;
+            border-radius: 12px;
+            border: 1px solid #f5dbb0;
+            background: #efe6d6;
+            box-shadow: 0 2px 0 #9b6d3f;
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.85rem;
+            line-height: 1;
+        }
+        .preset-item.filled .preset-delete { display: flex; align-items: center; justify-content: center; }
+        .preset-item.armed .preset-delete { display: none; }
+        .preset-delete:active { transform: translateY(2px); box-shadow: 0 0 0 #9b6d3f; }
+        .global-btn.preset-slot { background: #efe6d6; }
+        .global-btn.preset-slot.filled { background: #e7c98a; }
+        .global-btn.preset-slot.armed { background: #f0b429; }
 
         .game-wrapper {
             background: #fbe9d2;
@@ -489,7 +546,33 @@
         .sidebar::-webkit-scrollbar-track { background: #efdbbc; border-radius: 20px; }
         .sidebar::-webkit-scrollbar-thumb { background: #b48b5a; border-radius: 20px; }
         .file-input { display: none; }
-        .canvas-wrapper { max-width: 420px; width: 100%; }
+        .gameover-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(43, 27, 14, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        .gameover-modal.show { display: flex; }
+        .gameover-card {
+            background: #fbe9d2;
+            border: 3px solid #b48b5a;
+            border-radius: 28px;
+            box-shadow: 0 15px 22px rgba(0,0,0,0.5), inset 0 1px 6px rgba(255,255,200,0.6);
+            padding: 28px 40px 22px;
+            text-align: center;
+            min-width: 260px;
+        }
+        .gameover-card h2 {
+            color: #4e2e1a;
+            font-size: 1.45rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+        .canvas-wrapper { max-width: 640px; width: 100%; }
         .toast {
             position: fixed;
             top: 20px;
@@ -509,6 +592,13 @@
             border: 2px solid #b48b5a;
         }
         .toast.show { opacity: 1; }
+        .notice-card h2 {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
         .music-site-modal {
             display: none;
@@ -629,22 +719,25 @@
 </head>
 <body>
 <div class="game-layout">
-    <div class="sidebar" id="sidebar">
-        <h3>🎨 水果设置 <span>上传/改名</span></h3>
+    <div class="side-column">
+        <div class="sidebar" id="sidebar">
+            <h3>🎨 元素设置 <span>上传/改名</span></h3>
+        </div>
+        <div class="sidebar side-actions" id="sideActions"></div>
     </div>
 
     <div class="game-wrapper">
         <div class="header">
             <div class="score-box">
-                <span>🍉</span> <span id="scoreDisplay">0</span>
+                <span id="scoreDisplay">0</span>
             </div>
-            <div style="font-weight:700; color:#8b6b45; font-size:0.8rem;">合成大西瓜</div>
+            <div style="font-weight:700; color:#8b6b45; font-size:0.8rem;">合成头部大主播</div>
         </div>
         <div class="canvas-container canvas-wrapper" id="canvasContainer">
-            <canvas id="gameCanvas" width="700" height="900"></canvas>
+            <canvas id="gameCanvas" width="1000" height="1150"></canvas>
         </div>
         <div class="hint">
-            <span>💡 左右拖动顶部水果，释放后掉落</span>
+            <span>💡 左右拖动顶部元素，释放后掉落</span>
         </div>
         <div class="button-group">
             <button class="btn" id="newGameBtn">🍃 新一局</button>
@@ -683,7 +776,7 @@
 
         <div class="global-actions">
             <button class="global-btn import" id="addMusicBtn">➕ 添加本地音乐</button>
-            <input type="file" id="musicInput" class="file-input" accept="audio/*" multiple>
+            <input type="file" id="musicInput" class="file-input" accept=".mp3,.wav,audio/mpeg,audio/wav" multiple>
 
             <button class="global-btn music" id="openSiteBtn">🌐 打开音乐网站</button>
 
@@ -711,7 +804,20 @@
     </div>
 </div>
 
+<script src="elements/pack.js"></script>
 <div class="toast" id="toast"></div>
+<div class="gameover-modal" id="gameOverModal">
+    <div class="gameover-card">
+        <h2>游戏失败</h2>
+        <button class="btn" id="gameOverRestart" type="button">🍃 新一局</button>
+    </div>
+</div>
+<div class="gameover-modal" id="noticeModal">
+    <div class="gameover-card notice-card">
+        <h2 id="noticeText">提示</h2>
+        <button class="btn" id="noticeOk" type="button">知道了</button>
+    </div>
+</div>
 
 <script>
     (function(){
@@ -720,20 +826,22 @@
         const scoreDisplay = document.getElementById('scoreDisplay');
         const toastEl = document.getElementById('toast');
 
-        const W = 700, H = 900;
+        const W = 1000, H = 1150;
 
-        const RADII = [22, 32, 44, 56, 72, 90, 110, 135, 165, 200];
-        const defaultEmojis = ['🍒', '🍊', '🍋', '🥝', '🍏', '🍐', '🫐', '🍇', '🐉', '🍉'];
+        const RADII = [20, 26, 33, 41, 53, 67, 86, 110, 140, 178, 227, 290];
+        const defaultEmojis = ['🍒', '🥝', '🍏', '🫐', '🐉', '🍉', '🍈', '🎃', '🌕', '🌍', '🌞', '🌌'];
         const defaultBgColors = [
-            '#FFCDD2', '#FFE0B2', '#FFF9C4', '#DCEDC8', '#C8E6C9',
-            '#B2DFDB', '#BBDEFB', '#E1BEE7', '#F8BBD0', '#FFF9C4'
+            '#FFCDD2', '#DCEDC8', '#C8E6C9', '#BBDEFB', '#F8BBD0', '#FFF9C4',
+            '#C8E6C9', '#FFAB91', '#FFF8E1', '#BBDEFB', '#FFE0B2', '#E8EAF6'
         ];
-        let fruitNames = ['樱桃', '橘子', '柠檬', '猕猴桃', '青苹果', '梨', '蓝莓', '葡萄', '火龙果', '西瓜'];
+        let fruitNames = ['樱桃', '猕猴桃', '青苹果', '蓝莓', '火龙果', '西瓜', '冬瓜', '巨型南瓜', '月亮瓜', '地球瓜', '太阳瓜', '银河瓜'];
 
         const TOP_LINE_Y = 120;
 
         let textures = [];
         let backgroundImage = null;
+        const mergeSoundUrls = RADII.map(() => null);
+        const mergeSoundNames = RADII.map(() => null);
 
         function initTextures() {
             textures = RADII.map((_, idx) => ({
@@ -756,11 +864,40 @@
             }, duration);
         }
 
+        const noticeModal = document.getElementById('noticeModal');
+        const noticeText = document.getElementById('noticeText');
+        function showNotice(msg) {
+            noticeText.textContent = msg;
+            noticeModal.classList.add('show');
+        }
+        document.getElementById('noticeOk').addEventListener('click', () => {
+            noticeModal.classList.remove('show');
+        });
+
+        function fileExt(file) {
+            const name = file.name || '';
+            const dot = name.lastIndexOf('.');
+            return dot >= 0 ? name.slice(dot + 1).toLowerCase() : '';
+        }
+
+        function isPngOrJpg(file) {
+            const ext = fileExt(file);
+            return ext === 'png' || ext === 'jpg' || ext === 'jpeg';
+        }
+
+        function hasChinese(name) {
+            return /[\u3400-\u9fff]/.test(name || '');
+        }
+
+        function isMp3OrWav(file) {
+            const ext = fileExt(file);
+            return ext === 'mp3' || ext === 'wav';
+        }
+
         // ============================================================
         //  音乐播放器模块
         // ============================================================
         const audio = new Audio();
-        audio.crossOrigin = 'anonymous';
         let playlist = [];
         let currentIndex = -1;
         let isPlaying = false;
@@ -769,8 +906,7 @@
         // ★★★ 内置歌曲配置 ★★★
         // 请把音频文件放在仓库的 music/ 文件夹里
         const BUILTIN_SONGS = [
-            { name: 'Bad Apple!!', url: 'music/bad-apple.mp3' },
-            { name: 'どうして…', url: 'music/doushite.mp3' },
+            { name: 'Virtual to LIVE', url: 'music/Virtual to LIVE - covered by VirtuaReal_哔哩哔哩_bilibili.mp3' },
         ];
 
         const playBtn = document.getElementById('playBtn');
@@ -860,12 +996,23 @@
         }
 
         function addMusicFiles(files) {
-            const audioFiles = Array.from(files).filter(f => f.type.startsWith('audio/'));
-            if (audioFiles.length === 0) {
-                showToast('请选择音频文件');
-                return;
-            }
-            audioFiles.forEach(file => {
+            const selected = Array.from(files || []);
+            if (selected.length === 0) return;
+            let badName = false;
+            let badType = false;
+            const accepted = [];
+            selected.forEach((file) => {
+                const chinese = hasChinese(file.name);
+                const allowed = isMp3OrWav(file);
+                if (chinese) badName = true;
+                if (!allowed) badType = true;
+                if (!chinese && allowed) accepted.push(file);
+            });
+            if (badName && badType) showNotice('文件名不能包含中文，音频只接受 MP3 和 WAV');
+            else if (badName) showNotice('文件名不能包含中文');
+            else if (badType) showNotice('音频只接受 MP3 和 WAV');
+            if (accepted.length === 0) return;
+            accepted.forEach(file => {
                 const url = URL.createObjectURL(file);
                 playlist.push({
                     name: file.name.replace(/\.[^/.]+$/, ''),
@@ -876,7 +1023,7 @@
                 });
             });
             updateMusicList();
-            showToast(`已添加 ${audioFiles.length} 首音乐`);
+            showToast(`已添加 ${accepted.length} 首音乐`);
             if (currentIndex === -1 && playlist.length > 0) {
                 playMusic(0);
             }
@@ -912,11 +1059,16 @@
             updateMusicList();
         }
 
+        function playbackUrl(url) {
+            if (!url || url.startsWith('blob:') || url.startsWith('data:')) return url;
+            return encodeURI(url);
+        }
+
         function playMusic(idx) {
             if (idx < 0 || idx >= playlist.length) return;
             currentIndex = idx;
             const item = playlist[idx];
-            audio.src = item.url;
+            audio.src = playbackUrl(item.url);
             audio.volume = volumeBar.value / 100;
             audio.play().then(() => {
                 isPlaying = true;
@@ -1225,7 +1377,7 @@
             if (pendingFruit) return;
             if (fruits.length > 45) return;
 
-            const spawnLevels = [0, 0, 0, 1, 1, 2, 2, 3];
+            const spawnLevels = [0, 0, 0, 1, 1, 2, 2, 3, 4];
             const level = spawnLevels[Math.floor(Math.random() * spawnLevels.length)];
             const radius = RADII[level];
 
@@ -1280,6 +1432,7 @@
                     const newLevel = level + 1;
                     const newBody = createFruitBody(midX, midY, newLevel);
                     addFruitToWorld(newBody);
+                    playMergeSound(level);
 
                     score += (newLevel + 1) * 15;
                     updateScore();
@@ -1487,7 +1640,7 @@
             }
         });
 
-        document.getElementById('newGameBtn').addEventListener('click', () => {
+        function startNewGame() {
             for (let body of [...fruits]) {
                 removeFruit(body);
             }
@@ -1499,8 +1652,19 @@
             score = 0;
             updateScore();
             gameOver = false;
+            document.getElementById('gameOverModal').classList.remove('show');
             spawnPendingFruit();
-        });
+        }
+
+        function triggerGameOver() {
+            if (gameOver) return;
+            gameOver = true;
+            isDragging = false;
+            document.getElementById('gameOverModal').classList.add('show');
+        }
+
+        document.getElementById('newGameBtn').addEventListener('click', startNewGame);
+        document.getElementById('gameOverRestart').addEventListener('click', startNewGame);
 
         Events.on(engine, 'collisionStart', handleCollision);
 
@@ -1512,6 +1676,18 @@
                 }
                 if (body.position.x < 0) Body.setPosition(body, { x: RADII[body.plugin.fruitData.level] + 5, y: body.position.y });
                 if (body.position.x > W) Body.setPosition(body, { x: W - RADII[body.plugin.fruitData.level] - 5, y: body.position.y });
+
+                if (!gameOver) {
+                    const data = body.plugin.fruitData;
+                    const overLine = body.position.y - data.radius < TOP_LINE_Y;
+                    if (!overLine) {
+                        data.overLineSince = 0;
+                    } else if (!data.overLineSince) {
+                        data.overLineSince = performance.now();
+                    } else if (performance.now() - data.overLineSince >= 3000) {
+                        triggerGameOver();
+                    }
+                }
             }
         });
 
@@ -1534,7 +1710,7 @@
 
                 const fileInput = document.createElement('input');
                 fileInput.type = 'file';
-                fileInput.accept = 'image/*';
+                fileInput.accept = '.png,.jpg,.jpeg,image/png,image/jpeg';
                 fileInput.className = 'file-input';
                 fileInput.id = `file-${level}`;
 
@@ -1544,9 +1720,13 @@
 
                 fileInput.addEventListener('change', (e) => {
                     const file = e.target.files[0];
-                    if (!file) return;
-                    loadImageToTexture(file, level, preview);
                     fileInput.value = '';
+                    if (!file) return;
+                    if (!isPngOrJpg(file)) {
+                        showNotice('图片只接受 PNG 和 JPG');
+                        return;
+                    }
+                    loadImageToTexture(file, level, preview);
                 });
 
                 const info = document.createElement('div');
@@ -1573,6 +1753,33 @@
                     fileInput.click();
                 });
 
+                const soundBtn = document.createElement('button');
+                soundBtn.className = 'sound-btn';
+                soundBtn.innerHTML = '🔊 音效';
+                soundBtn.title = '上传两个该水果合并时的音效';
+                if (mergeSoundUrls[level]) soundBtn.classList.add('has-sound');
+
+                const soundInput = document.createElement('input');
+                soundInput.type = 'file';
+                soundInput.accept = '.mp3,.wav,audio/mpeg,audio/wav';
+                soundInput.className = 'file-input';
+                soundBtn.addEventListener('click', () => soundInput.click());
+                soundInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    soundInput.value = '';
+                    if (!file) return;
+                    if (!isMp3OrWav(file)) {
+                        showNotice('音频只接受 MP3 和 WAV');
+                        return;
+                    }
+                    if (mergeSoundUrls[level]) URL.revokeObjectURL(mergeSoundUrls[level]);
+                    mergeSoundUrls[level] = URL.createObjectURL(file);
+                    mergeSoundNames[level] = file.name;
+                    soundBtn.classList.add('has-sound');
+                    soundBtn.title = file.name;
+                    showToast(`已设置${fruitNames[level]}的合并音效`);
+                });
+
                 const clearBtn = document.createElement('button');
                 clearBtn.className = 'clear-btn';
                 clearBtn.innerHTML = '↺ 重置';
@@ -1587,6 +1794,8 @@
                 });
 
                 actions.appendChild(uploadBtn);
+                actions.appendChild(soundBtn);
+                actions.appendChild(soundInput);
                 actions.appendChild(clearBtn);
                 info.appendChild(nameInput);
                 info.appendChild(actions);
@@ -1601,7 +1810,7 @@
 
             const importBtn = document.createElement('button');
             importBtn.className = 'global-btn import';
-            importBtn.innerHTML = '📦 导入压缩包 (1-10)';
+            importBtn.innerHTML = `📦 导入压缩包 (1-${RADII.length})`;
             const importInput = document.createElement('input');
             importInput.type = 'file';
             importInput.accept = '.zip';
@@ -1619,7 +1828,7 @@
 
             const exportBtn = document.createElement('button');
             exportBtn.className = 'global-btn export';
-            exportBtn.innerHTML = '📥 导出压缩包 (1-10)';
+            exportBtn.innerHTML = `📥 导出压缩包 (1-${RADII.length})`;
             exportBtn.addEventListener('click', exportZip);
             globalActions.appendChild(exportBtn);
 
@@ -1628,13 +1837,18 @@
             bgBtn.innerHTML = '🖼️ 更换背景图片';
             const bgInput = document.createElement('input');
             bgInput.type = 'file';
-            bgInput.accept = 'image/*';
+            bgInput.accept = '.png,.jpg,.jpeg,image/png,image/jpeg';
             bgInput.className = 'file-input';
             bgInput.id = 'bgInput';
             bgBtn.addEventListener('click', () => bgInput.click());
             bgInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
+                bgInput.value = '';
                 if (!file) return;
+                if (!isPngOrJpg(file)) {
+                    showNotice('图片只接受 PNG 和 JPG');
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const img = new Image();
@@ -1645,7 +1859,6 @@
                     img.src = ev.target.result;
                 };
                 reader.readAsDataURL(file);
-                bgInput.value = '';
             });
             globalActions.appendChild(bgBtn);
             globalActions.appendChild(bgInput);
@@ -1671,7 +1884,302 @@
             });
             globalActions.appendChild(resetAllBtn);
 
-            sidebar.appendChild(globalActions);
+            const PRESET_SLOT_KEY = 'watermelon-merge-preset-slots';
+            let presetSaveArmed = false;
+            const filledPresetSlots = new Set();
+            const presetSlotButtons = [];
+            let slotCount = Math.max(6, parseInt(localStorage.getItem(PRESET_SLOT_KEY) || '6', 10) || 6);
+
+            function presetLabel(slot) {
+                const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+                const small = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+                let text;
+                if (slot <= 10) text = small[slot];
+                else if (slot < 20) text = '十' + (slot === 10 ? '' : digits[slot - 10]);
+                else {
+                    const tens = Math.floor(slot / 10);
+                    const ones = slot % 10;
+                    text = digits[tens] + '十' + (ones ? digits[ones] : '');
+                }
+                return '预设' + text;
+            }
+
+            const savePresetBtn = document.createElement('button');
+            savePresetBtn.className = 'global-btn preset-save';
+            savePresetBtn.innerHTML = '💾 保存为预设';
+            savePresetBtn.addEventListener('click', () => {
+                presetSaveArmed = !presetSaveArmed;
+                savePresetBtn.innerHTML = presetSaveArmed ? '💾 取消保存' : '💾 保存为预设';
+                refreshPresetSlotButtons();
+                showToast(presetSaveArmed ? '请选择要保存到的预设' : '已取消保存');
+            });
+            globalActions.appendChild(savePresetBtn);
+
+            const presetRow = document.createElement('div');
+            presetRow.className = 'preset-row';
+
+            function addPresetSlotButton(slot) {
+                const wrap = document.createElement('div');
+                wrap.className = 'preset-item';
+                const btn = document.createElement('button');
+                btn.className = 'global-btn preset-slot';
+                btn.dataset.slot = String(slot);
+                btn.addEventListener('click', () => onPresetSlotClick(slot));
+                const del = document.createElement('button');
+                del.className = 'preset-delete';
+                del.type = 'button';
+                del.textContent = '🗑️';
+                del.title = '删除这个预设';
+                del.addEventListener('click', () => onPresetDeleteClick(slot));
+                wrap.appendChild(btn);
+                wrap.appendChild(del);
+                presetRow.appendChild(wrap);
+                presetSlotButtons.push(btn);
+            }
+
+            for (let slot = 1; slot <= slotCount; slot++) addPresetSlotButton(slot);
+            globalActions.appendChild(presetRow);
+
+            const addSlotBtn = document.createElement('button');
+            addSlotBtn.className = 'global-btn';
+            addSlotBtn.style.background = '#efe6d6';
+            addSlotBtn.innerHTML = '＋ 增加槽位';
+            addSlotBtn.addEventListener('click', () => {
+                slotCount += 1;
+                localStorage.setItem(PRESET_SLOT_KEY, String(slotCount));
+                addPresetSlotButton(slotCount);
+                refreshPresetSlotButtons();
+                showToast(`已增加${presetLabel(slotCount)}`);
+            });
+            globalActions.appendChild(addSlotBtn);
+
+            function refreshPresetSlotButtons() {
+                presetSlotButtons.forEach((btn, index) => {
+                    const slot = index + 1;
+                    const label = presetLabel(slot);
+                    const filled = filledPresetSlots.has(slot);
+                    const wrap = btn.parentElement;
+                    wrap.classList.toggle('filled', filled && !presetSaveArmed);
+                    wrap.classList.toggle('armed', presetSaveArmed);
+                    btn.classList.toggle('filled', filled && !presetSaveArmed);
+                    btn.classList.toggle('armed', presetSaveArmed);
+                    if (presetSaveArmed) btn.innerHTML = `存入${label}`;
+                    else btn.innerHTML = filled ? label : `${label} 空`;
+                });
+            }
+
+            async function onPresetDeleteClick(slot) {
+                const label = presetLabel(slot);
+                try {
+                    await deletePreset(slot);
+                    filledPresetSlots.delete(slot);
+                    refreshPresetSlotButtons();
+                    showToast(`已删除${label}`);
+                } catch (err) {
+                    console.error(err);
+                    showToast('删除预设失败');
+                }
+            }
+
+            async function onPresetSlotClick(slot) {
+                const label = presetLabel(slot);
+                try {
+                    if (presetSaveArmed) {
+                        showToast(`正在保存${label}...`, 5000);
+                        await writePreset(await capturePreset(slot));
+                        filledPresetSlots.add(slot);
+                        presetSaveArmed = false;
+                        savePresetBtn.innerHTML = '💾 保存为预设';
+                        refreshPresetSlotButtons();
+                        showToast(`已保存到${label}`);
+                        return;
+                    }
+                    const record = await readPreset(slot);
+                    if (!record) {
+                        showToast(`${label}还是空的`);
+                        return;
+                    }
+                    showToast(`正在读取${label}...`, 5000);
+                    await applyPreset(record);
+                    showToast(`已切换到${label}`);
+                } catch (err) {
+                    console.error(err);
+                    showToast('预设操作失败');
+                }
+            }
+
+            refreshPresetSlotButtons();
+            listFilledPresetSlots().then((slots) => {
+                let grew = false;
+                slots.forEach((slot) => {
+                    filledPresetSlots.add(slot);
+                    while (slotCount < slot) {
+                        slotCount += 1;
+                        addPresetSlotButton(slotCount);
+                        grew = true;
+                    }
+                });
+                if (grew) localStorage.setItem(PRESET_SLOT_KEY, String(slotCount));
+                refreshPresetSlotButtons();
+            }).catch(() => {});
+
+            document.getElementById('sideActions').appendChild(globalActions);
+        }
+
+        function playMergeSound(level) {
+            const url = mergeSoundUrls[level];
+            if (!url) return;
+            const sfx = new Audio(url);
+            sfx.volume = 1;
+            sfx.play().catch(() => {});
+        }
+
+        const PRESET_DB_NAME = 'watermelon-merge-presets';
+
+        function openPresetDb() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(PRESET_DB_NAME, 3);
+                req.onupgradeneeded = () => {
+                    const db = req.result;
+                    if (!db.objectStoreNames.contains('presets')) {
+                        db.createObjectStore('presets', { keyPath: 'slot' });
+                    } else {
+                        req.transaction.objectStore('presets').clear();
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function listFilledPresetSlots() {
+            const db = await openPresetDb();
+            try {
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction('presets', 'readonly');
+                    const req = tx.objectStore('presets').getAllKeys();
+                    req.onsuccess = () => resolve(req.result.map((key) => Number(key)));
+                    req.onerror = () => reject(req.error);
+                });
+            } finally {
+                db.close();
+            }
+        }
+
+        async function writePreset(record) {
+            const db = await openPresetDb();
+            try {
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction('presets', 'readwrite');
+                    tx.objectStore('presets').put(record);
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+            } finally {
+                db.close();
+            }
+        }
+
+        async function deletePreset(slot) {
+            const db = await openPresetDb();
+            try {
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction('presets', 'readwrite');
+                    tx.objectStore('presets').delete(slot);
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+            } finally {
+                db.close();
+            }
+        }
+
+        async function readPreset(slot) {
+            const db = await openPresetDb();
+            try {
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction('presets', 'readonly');
+                    const req = tx.objectStore('presets').get(slot);
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => reject(req.error);
+                });
+            } finally {
+                db.close();
+            }
+        }
+
+        async function capturePreset(slot) {
+            const fruits = [];
+            for (let level = 0; level < RADII.length; level++) {
+                const tex = textures[level];
+                let soundBlob = null;
+                if (mergeSoundUrls[level]) {
+                    try {
+                        const res = await fetch(mergeSoundUrls[level]);
+                        if (res.ok) soundBlob = await res.blob();
+                    } catch (err) {}
+                }
+                fruits.push({
+                    name: fruitNames[level],
+                    type: tex.type,
+                    emoji: tex.emoji,
+                    bgColor: tex.bgColor,
+                    imageSrc: tex.type === 'image' ? tex.imageSrc : null,
+                    soundBlob,
+                    soundName: mergeSoundNames[level] || ''
+                });
+            }
+            return { slot, savedAt: Date.now(), fruits };
+        }
+
+        async function applyPreset(record) {
+            const nameInputs = document.querySelectorAll('.fruit-name-input');
+            const soundBtns = document.querySelectorAll('.sound-btn');
+            for (let level = 0; level < RADII.length; level++) {
+                const item = record.fruits[level] || {};
+                fruitNames[level] = item.name || `水果${level + 1}`;
+                if (nameInputs[level]) nameInputs[level].value = fruitNames[level];
+
+                const tex = textures[level];
+                if (item.type === 'image' && item.imageSrc) {
+                    await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            tex.type = 'image';
+                            tex.image = img;
+                            tex.imageSrc = item.imageSrc;
+                            tex.emoji = item.emoji || defaultEmojis[level];
+                            tex.bgColor = item.bgColor || 'rgba(255,255,240,0.8)';
+                            resolve();
+                        };
+                        img.onerror = () => resolve();
+                        img.src = item.imageSrc;
+                    });
+                } else {
+                    tex.type = 'emoji';
+                    tex.emoji = item.emoji || defaultEmojis[level];
+                    tex.bgColor = item.bgColor || defaultBgColors[level];
+                    tex.image = null;
+                    tex.imageSrc = null;
+                }
+                updatePreview(document.getElementById(`preview-${level}`), level);
+
+                if (mergeSoundUrls[level]) URL.revokeObjectURL(mergeSoundUrls[level]);
+                mergeSoundUrls[level] = null;
+                mergeSoundNames[level] = null;
+                const soundBtn = soundBtns[level];
+                if (item.soundBlob) {
+                    mergeSoundUrls[level] = URL.createObjectURL(item.soundBlob);
+                    mergeSoundNames[level] = item.soundName || '音效';
+                    if (soundBtn) {
+                        soundBtn.classList.add('has-sound');
+                        soundBtn.title = mergeSoundNames[level];
+                    }
+                } else if (soundBtn) {
+                    soundBtn.classList.remove('has-sound');
+                    soundBtn.title = '上传两个该水果合并时的音效';
+                }
+            }
         }
 
         function loadImageToTexture(file, level, previewEl) {
@@ -1725,12 +2233,14 @@
                 const zip = await JSZip.loadAsync(file);
 
                 let loadedCount = 0;
+                let rejectedCount = 0;
                 const promises = [];
+                const blockedExts = ['gif', 'webp', 'bmp', 'svg', 'avif', 'heic', 'tif', 'tiff'];
 
-                for (let num = 1; num <= 10; num++) {
+                for (let num = 1; num <= RADII.length; num++) {
                     const levelIndex = num - 1;
                     const baseName = num.toString();
-                    const exts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                    const exts = ['jpg', 'jpeg', 'png'];
                     let foundFile = null;
                     let foundExt = null;
 
@@ -1747,6 +2257,11 @@
                             foundExt = ext;
                             break;
                         }
+                    }
+
+                    if (!foundFile) {
+                        const blocked = blockedExts.some((ext) => zip.files[`${baseName}.${ext}`] || zip.files[`${baseName}.${ext.toUpperCase()}`]);
+                        if (blocked) rejectedCount++;
                     }
 
                     if (foundFile) {
@@ -1779,15 +2294,129 @@
                 }
 
                 await Promise.all(promises);
+                if (rejectedCount > 0) showNotice('图片只接受 PNG 和 JPG');
                 if (loadedCount > 0) {
-                    showToast(`成功导入 ${loadedCount} 张图片 (1-10)`);
-                } else {
-                    showToast('未找到匹配的图片文件 (1.jpg ~ 10.jpg)');
+                    showToast(`成功导入 ${loadedCount} 张图片 (1-${RADII.length})`);
+                } else if (rejectedCount === 0) {
+                    showToast(`未找到匹配的图片文件 (1.png / 1.jpg ~ ${RADII.length}.png / ${RADII.length}.jpg)`);
                 }
             } catch (err) {
                 console.error(err);
                 showToast('导入失败: ' + err.message);
             }
+        }
+
+        async function textureToDataUrl(tex) {
+            if (!tex || tex.type !== 'image') return null;
+            if (typeof tex.imageSrc === 'string' && tex.imageSrc.startsWith('data:')) return tex.imageSrc;
+            if (tex.image) {
+                try {
+                    const copy = document.createElement('canvas');
+                    copy.width = tex.image.naturalWidth || tex.image.width;
+                    copy.height = tex.image.naturalHeight || tex.image.height;
+                    copy.getContext('2d').drawImage(tex.image, 0, 0);
+                    return copy.toDataURL('image/png');
+                } catch (err) {}
+            }
+            if (!tex.imageSrc) return null;
+            try {
+                const res = await fetch(tex.imageSrc);
+                if (!res.ok) return null;
+                const blob = await res.blob();
+                return await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => resolve(null);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function applyElementPackNames() {
+            const items = (window.ELEMENT_PACK && window.ELEMENT_PACK.items) || [];
+            for (let level = 0; level < RADII.length; level++) {
+                const item = items[level];
+                if (item && item.name) fruitNames[level] = item.name;
+            }
+        }
+
+        function loadPackImage(url) {
+            return new Promise((resolve) => {
+                if (!url) {
+                    resolve(null);
+                    return;
+                }
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = url;
+            });
+        }
+
+        function probePackSound(url) {
+            return new Promise((resolve) => {
+                if (!url) {
+                    resolve(null);
+                    return;
+                }
+                let settled = false;
+                const finish = (value) => {
+                    if (settled) return;
+                    settled = true;
+                    resolve(value);
+                };
+                const probe = new Audio();
+                probe.preload = 'metadata';
+                probe.onloadedmetadata = () => finish(url);
+                probe.onerror = () => finish(null);
+                probe.src = url;
+                setTimeout(() => finish(null), 4000);
+            });
+        }
+
+        function mediaCandidates(level, preferred, folder, extensions) {
+            const urls = [];
+            if (preferred) urls.push(preferred);
+            extensions.forEach((ext) => {
+                const url = `elements/${folder}/${level + 1}.${ext}`;
+                if (!urls.includes(url)) urls.push(url);
+            });
+            return urls;
+        }
+
+        async function loadFirstImage(urls) {
+            for (const url of urls) {
+                const img = await loadPackImage(url);
+                if (img) return { img, url };
+            }
+            return null;
+        }
+
+        async function loadElementPack() {
+            const items = (window.ELEMENT_PACK && window.ELEMENT_PACK.items) || [];
+            const soundBtns = document.querySelectorAll('.sound-btn');
+            await Promise.all(RADII.map(async (_, level) => {
+                const item = items[level] || {};
+                const loaded = await loadFirstImage(mediaCandidates(level, item.image, 'images', ['png', 'jpg', 'jpeg']));
+                if (loaded) {
+                    const tex = textures[level];
+                    tex.type = 'image';
+                    tex.image = loaded.img;
+                    tex.imageSrc = loaded.url;
+                    updatePreview(document.getElementById(`preview-${level}`), level);
+                }
+                const soundUrl = await probePackSound(item.sound);
+                if (!soundUrl) return;
+                mergeSoundUrls[level] = soundUrl;
+                mergeSoundNames[level] = soundUrl.split('/').pop();
+                const soundBtn = soundBtns[level];
+                if (soundBtn) {
+                    soundBtn.classList.add('has-sound');
+                    soundBtn.title = mergeSoundNames[level];
+                }
+            }));
         }
 
         async function exportZip() {
@@ -1796,11 +2425,11 @@
                 const zip = new JSZip();
 
                 let count = 0;
-                for (let num = 1; num <= 10; num++) {
+                for (let num = 1; num <= RADII.length; num++) {
                     const levelIndex = num - 1;
                     const tex = textures[levelIndex];
-                    if (tex.type === 'image' && tex.imageSrc) {
-                        const dataUrl = tex.imageSrc;
+                    const dataUrl = await textureToDataUrl(tex);
+                    if (dataUrl) {
                         const base64 = dataUrl.split(',')[1];
                         const mime = dataUrl.split(',')[0].split(':')[1].split(';')[0];
                         let ext = 'jpg';
@@ -1814,7 +2443,7 @@
                 }
 
                 if (count === 0) {
-                    showToast('没有可导出的图片 (1~10 未上传图片)');
+                    showToast(`没有可导出的图片 (1~${RADII.length} 未上传图片)`);
                     return;
                 }
 
@@ -1822,7 +2451,7 @@
                 const url = URL.createObjectURL(content);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'fruits_textures_10.zip';
+                a.download = `fruits_textures_${RADII.length}.zip`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1834,16 +2463,26 @@
             }
         }
 
+        applyElementPackNames();
         buildSidebar();
 
-        spawnPendingFruit();
+        let packReady = false;
+        (async function bootElementPack() {
+            try {
+                await loadElementPack();
+            } catch (err) {
+                console.error(err);
+            }
+            packReady = true;
+            if (!gameOver && !pendingFruit) spawnPendingFruit();
+        })();
+
         requestAnimationFrame(render);
         requestAnimationFrame(updatePhysics);
 
         setInterval(() => {
-            if (!gameOver && !pendingFruit && !isDragging && fruits.length < 45) {
-                spawnPendingFruit();
-            }
+            if (!packReady || gameOver || pendingFruit || isDragging || fruits.length >= 45) return;
+            spawnPendingFruit();
         }, 600);
 
         updateScore();

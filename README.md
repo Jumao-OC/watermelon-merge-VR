@@ -1,193 +1,159 @@
-# 🍉 合成大西瓜 · 全功能版
+# 🍉 合成大西瓜·VR版
 
-一个功能丰富的合成大西瓜游戏，支持**自定义水果贴图**、**一键导入/导出压缩包**、**更换背景**、**内置音乐播放器**，以及**多平台音乐网站切换**。基于 HTML5 Canvas + Matter.js 物理引擎，纯前端实现，开箱即用。
+基于 [shizwd/watermelon-merge](https://github.com/shizwd/watermelon-merge) 二次开发的合成游戏。
 
-## 🎮 在线试玩
+开局读取项目里的 `elements/`：12 个角色的图片、名字和合成音效会跟着仓库一起分发。浏览器里的预设只存在本机，不会跟着下载走。
 
-👉 [点击这里开始游戏](https://shizwd.github.io/watermelon-merge/)
-
-> 也可以直接打开 `index.html` 本地游玩
+用浏览器直接打开项目里的 `index.html` 即可游玩。需要带上同级的 `elements/` 和 `music/`，不要只拷贝这一个 HTML 文件。
 
 ## ✨ 功能特色
 
-### 🎯 经典玩法
-- 拖动顶部水果左右移动，松开后垂直掉落
-- 相同等级的水果碰撞后合成为更高级的水果
-- 从樱桃 🍒 一路合成到西瓜 🍉
-- 水果释放前只能水平移动，不会越过顶部虚线
+### 🎯 玩法
 
-### 🎨 深度自定义贴图
-- **单独上传**：为每个水果等级上传本地图片作为贴图
-- **一键导入**：上传 ZIP 压缩包（`1.jpg` ~ `10.jpg`），批量替换全部水果
-- **一键导出**：将当前所有自定义贴图打包下载为 ZIP
-- **重置**：单个重置或一键重置全部贴图
-- **改名**：侧边栏可直接修改每个水果的名称
+- 左右拖动顶部元素，松开后垂直掉落
+- 两个相同等级的元素碰撞后，合成下一级
+- 新掉落的元素从第 1 到第 5 级里随机出现，第 6 级及以后只能靠合成
+- 已经松开的元素顶部越过虚线并停留 3 秒，判定失败，弹出「游戏失败」，可点「🍃 新一局」
+- 还没松开、停在虚线上方的那个元素不算失败
 
-### 🖼️ 背景更换
-- 上传任意图片作为游戏背景
-- 一键恢复默认背景
+### 🎨 元素
 
-### 🎵 内置音乐播放器
-- **内置歌曲**：把音乐文件放进仓库的 `music/` 文件夹，自动加载播放
-- **本地音乐**：上传本地音频文件（mp3、wav、ogg 等）
-- **手动添加 URL**：粘贴任意音频链接
-- **播放控制**：播放/暂停、上一首/下一首、进度拖动、音量调节
-- **循环模式**：列表循环 / 单曲循环 / 随机播放
-- **封面显示**：内置歌曲可配置封面图，播放时封面旋转
-- **播放列表**：支持添加、删除、清空
+- 左侧栏标题是「元素设置」
+- 每一级可以改名、上传图片、上传合成音效，或重置回表情
+- 图片只接受 PNG、JPG（`.jpeg` 也算 JPG）
+- 合成音效只接受 MP3、WAV
+- 格式不对会弹出提示，这张文件不会被用上
+- 也可以用压缩包批量导入、导出 1 到 12 的图片，压缩包里同样只收 PNG 和 JPG
 
-### 🌐 多平台音乐网站
-- 一键打开弹窗，切换多个音乐网站：
-  - 🎵 Music Mizu（本站）
-  - ☁️ 网易云音乐
-  - 🐧 QQ音乐
-  - 📺 B站音频
-  - 🔊 SoundCloud
-  - ✏️ 自定义（输入任意网址）
-- iframe 嵌入，零 CORS 问题
+### 💾 浏览器预设
 
-## 📦 压缩包格式说明
+- 「保存为预设」把当前 12 级的名字、图片、音效存进这台浏览器
+- 一开始有六个槽位，点「＋ 增加槽位」可以继续加
+- 已经存过的槽位右边有垃圾桶，只删除这一条浏览器记录
+- 刷新页面会回到 `elements/` 里的那一套，不会自动套用预设
 
-导入/导出的 ZIP 压缩包遵循以下命名规则：
 
-| 图片编号 | 对应水果 | 默认 Emoji |
-|---------|---------|-----------|
-| `1.jpg` | 樱桃 | 🍒 |
-| `2.jpg` | 橘子 | 🍊 |
-| `3.jpg` | 柠檬 | 🍋 |
-| `4.jpg` | 猕猴桃 | 🥝 |
-| `5.jpg` | 青苹果 | 🍏 |
-| `6.jpg` | 梨 | 🍐 |
-| `7.jpg` | 蓝莓 | 🫐 |
-| `8.jpg` | 葡萄 | 🍇 |
-| `9.jpg` | 火龙果 | 🐉 |
-| `10.jpg` | 西瓜 | 🍉 |
 
-> 支持 `jpg` / `jpeg` / `png` / `gif` / `webp` / `bmp` 格式。导出时按实际图片格式命名。
+### 🖼️ 背景
 
-## 🎵 内置音乐配置
+- 可更换游戏背景，只接受 PNG、JPG
+- 可恢复默认背景
 
-1. 在仓库根目录新建 `music/` 文件夹
-2. 放入音频文件（推荐 mp3 格式）和可选的封面图
-3. 修改 `index.html` 里的 `BUILTIN_SONGS` 配置：
 
-```javascript
-const BUILTIN_SONGS = [
-    { name: '歌曲名1', url: 'music/song1.mp3', cover: 'music/cover1.jpg' },
-    { name: '歌曲名2', url: 'music/song2.mp3' },
-    // 不填 cover 则显示默认 🎵 图标
-];
-```
 
-4. 提交推送，刷新页面即可
+### 🎵 音乐播放器
 
-**目录结构示例**：
-```
-watermelon-merge/
-├── index.html
-├── music/
-│   ├── song1.mp3
-│   ├── cover1.jpg
-│   └── song2.mp3
-└── README.md
-```
+- 内置歌曲：`Virtual to LIVE`
+- 添加本地音乐时只接受 MP3、WAV，文件名不能包含中文
+- 可粘贴音频链接，可播放、暂停、切歌、拖进度、调音量
+- 循环模式：列表循环、单曲循环、随机播放
+- 可打开音乐网站弹窗
 
-## 🚀 快速开始
 
-### 方式一：直接打开
-下载 `index.html`，用浏览器打开即可游玩。
 
-### 方式二：部署到 GitHub Pages
-1. Fork 或新建一个仓库
-2. 将 `index.html` 上传到仓库**根目录**
-3. 进入仓库 **Settings → Pages**
-4. Source 选择 `Deploy from a branch`，Branch 选 `main`，文件夹选 `/ (root)`
-5. 等 1~2 分钟，访问 `https://你的用户名.github.io/仓库名/`
+## 📦 当前这 12 级
 
-### 方式三：部署到 Music Mizu 的子路径
-1. 把 `index.html` 放进 `musicmizu` 仓库的 `dist/game/` 目录
-2. 提交推送
-3. 访问 `https://music.mizusumi.com/game/`
-4. **同源部署**，游戏可以直接调用音乐网站的资源，无需 CORS
+编号越小，元素越小。图片放在 `elements/images/`，合成音效放在 `elements/sounds/`，名字写在 `elements/pack.js`。
 
-## 🕹️ 操作说明
 
-| 操作 | 说明 |
-|------|------|
-| 拖动顶部水果 | 按住水果左右移动，松开后掉落 |
-| 点击侧边栏预览图 | 上传该等级的贴图 |
-| 点击「上传」按钮 | 同上，上传单张图片 |
-| 点击「重置」按钮 | 恢复该等级为默认 Emoji |
-| 修改名称输入框 | 自定义该水果的名称 |
-| 点击「导入压缩包」 | 批量导入 10 张图片 |
-| 点击「导出压缩包」 | 打包下载当前自定义贴图 |
-| 点击「更换背景图片」 | 上传背景图 |
-| 点击「重置全部贴图」 | 所有水果恢复默认 Emoji |
-| 点击「打开音乐网站」 | 弹窗切换多个音乐平台 |
-| 点击歌曲列表 | 播放该歌曲 |
-| 拖动进度条 | 跳转到指定位置 |
+| 编号  | 名字      | 图片       | 合成音效     |
+| --- | ------- | -------- | -------- |
+| 1   | mitiya  | `1.png`  | `1.mp3`  |
+| 2   | harei   | `2.png`  | `2.mp3`  |
+| 3   | liko    | `3.png`  | `3.mp3`  |
+| 4   | hazel   | `4.png`  | `4.mp3`  |
+| 5   | mizuki  | `5.png`  | `5.mp3`  |
+| 6   | sumire  | `6.png`  | 无        |
+| 7   | sui     | `7.jpg`  | `7.mp3`  |
+| 8   | ameki   | `8.png`  | `8.mp3`  |
+| 9   | viridis | `9.png`  | `9.mp3`  |
+| 10  | siori   | `10.png` | `10.mp3` |
+| 11  | mofu    | `11.jpg` | `11.mp3` |
+| 12  | joi     | `12.png` | `12.mp3` |
 
-## 🛠️ 技术栈
 
-- **HTML5 Canvas** — 渲染游戏画面
-- **Matter.js** — 物理引擎，处理碰撞与合成
-- **JSZip** — 前端 ZIP 压缩与解压
-- **FileReader API** — 本地图片和音频读取
-- **Audio API** — 音乐播放控制
-- **纯原生 JavaScript** — 无框架依赖，单文件实现
+某一级没有图片时显示表情。没有音效时，这一级合成不发声。`pack.js` 里写了 `.png`，文件夹里实际是同编号的 `.jpg` 或 `.jpeg` 时，页面也会读到。
 
 ## 📁 项目结构
 
 ```
 watermelon-merge/
-├── index.html              # 全部代码（HTML + CSS + JS）
-├── music/                  # 内置音乐文件夹（可选）
-│   ├── song1.mp3
-│   ├── song2.mp3
-│   └── cover1.jpg
-└── README.md               # 项目说明
+├── index.html
+├── elements/
+│   ├── pack.js
+│   ├── images/          # 1.png … 12.png，也可以是 jpg
+│   └── sounds/          # 1.mp3 … 12.mp3，可以缺
+├── music/
+│   └── Virtual to LIVE - covered by VirtuaReal_哔哩哔哩_bilibili.mp3
+└── README.md
 ```
 
-## 🎨 自定义扩展
-
-想调整游戏难度或外观？可以修改 `index.html` 中的以下常量：
+换一套开局内容时，按编号替换图片和音效，再改 `elements/pack.js` 里对应的 `name`。例如：
 
 ```javascript
-// 水果半径（从樱桃到西瓜）
-const RADII = [22, 32, 44, 56, 72, 90, 110, 135, 165, 200];
+{ name: 'mitiya', image: 'elements/images/1.png', sound: 'elements/sounds/1.mp3' },
+```
 
-// 默认 Emoji
-const defaultEmojis = ['🍒', '🍊', '🍋', '🥝', '🍏', '🍐', '🫐', '🍇', '🐉', '🍉'];
+内置背景音乐在 `index.html` 的 `BUILTIN_SONGS`：
 
-// 初始生成等级范围
-const spawnLevels = [0, 0, 0, 1, 1, 2, 2, 3];
-
-// 音乐网站列表
-const musicSites = [
-    { name: 'Music Mizu', url: 'https://music.mizusumi.com', icon: '🎵' },
-    // 添加更多...
+```javascript
+const BUILTIN_SONGS = [
+    { name: 'Virtual to LIVE', url: 'music/Virtual to LIVE - covered by VirtuaReal_哔哩哔哩_bilibili.mp3' },
 ];
 ```
 
+
+
+## 🚀 放到 GitHub Pages
+
+公开仓库可以免费使用 GitHub Pages。
+
+1. 把整个项目推到你自己的仓库，包含 `elements/` 和 `music/`
+2. 打开仓库 **Settings → Pages**
+3. Source 选 `Deploy from a branch`，分支选 `main`，文件夹选 `/ (root)`
+4. 等一两分钟，打开 `https://你的用户名.github.io/仓库名/`
+
+
+
+## 🕹️ 操作说明
+
+
+| 操作         | 说明                |
+| ---------- | ----------------- |
+| 拖动顶部元素     | 按住左右移动，松开后掉落      |
+| 点击预览图或「上传」 | 给这一级换图片           |
+| 点击「音效」     | 上传这一级合成时播放的音频     |
+| 点击「重置」     | 这一级恢复为表情          |
+| 修改名称       | 改左侧这一级的名字         |
+| 导入压缩包      | 按 `1` 到 `12` 批量换图 |
+| 导出压缩包      | 把当前图片打包下载         |
+| 更换背景图片     | 上传 PNG 或 JPG 背景   |
+| 保存为预设      | 把当前一套存进浏览器槽位      |
+| 点预设名       | 读出这一槽             |
+| 点垃圾桶       | 删除这一槽在浏览器里的记录     |
+| 点歌曲或播放键    | 播放列表中的音乐          |
+
+
+
+
+## 🛠️ 技术栈
+
+- **HTML5 Canvas** — 画面
+- **Matter.js** — 碰撞与合成
+- **JSZip** — 导入、导出压缩包
+- **IndexedDB** — 浏览器里的预设
+- **Audio** — 背景音乐和合成音效
+
+
+
 ## ⚠️ 注意事项
 
-### CORS 跨域
-- **本地音乐**和**内置音乐**（同源）不受 CORS 限制
-- **手动添加 URL** 的音乐需要对方服务器允许跨域，否则无法播放
-- **音乐网站 iframe** 不受 CORS 限制，但部分网站可能设置 `X-Frame-Options` 禁止嵌入
+- 预设、本地上传的音乐，只在保存它们的那一个浏览器里
+- 手动添加的音乐链接需要对方允许跨域，否则播不了
+- 内置音乐和角色素材请确认你有权随项目发布
+- GitHub 单文件限制 100MB
 
-### 版权
-- 内置音乐请确保你有权发布
-- 使用第三方音乐网站时，版权归对方所有
 
-### GitHub Pages 限制
-- 单文件限制 100MB
-- 仓库建议不超过 1GB
-- 不支持自定义响应头（CORS 需通过同源部署解决）
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
 
 ## 📄 License
 
@@ -195,11 +161,8 @@ MIT License
 
 ## 🙏 致谢
 
-- [Matter.js](https://github.com/liabru/matter-js) — 强大的 2D 物理引擎
-- [JSZip](https://github.com/Stuk/jszip) — 前端 ZIP 处理库
-- [Faircamp](https://faircamp.org/) — Music Mizu 音乐站的生成器
-- 灵感来源于风靡一时的「合成大西瓜」
+- 本项目基于 [shizwd/watermelon-merge](https://github.com/shizwd/watermelon-merge) 二次开发，感谢原作者提供的游戏框架与可玩版本
+- [Matter.js](https://github.com/liabru/matter-js) — 2D 物理引擎
+- [JSZip](https://github.com/Stuk/jszip) — 前端 ZIP 处理
+- 灵感来源于「bilibili.com/video/BV1eEgj6hER9/?spm_id_from=333.337.search-card.all.click」
 
----
-
-⭐ 如果这个项目对你有帮助，欢迎点个 Star！
