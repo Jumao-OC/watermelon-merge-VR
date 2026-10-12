@@ -569,8 +569,16 @@
             color: #4e2e1a;
             font-size: 1.45rem;
             font-weight: 700;
-            margin-bottom: 18px;
+            margin: 0 auto 18px;
             letter-spacing: 1px;
+            line-height: 1.45;
+            max-width: 320px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         .canvas-wrapper { max-width: 640px; width: 100%; }
         .toast {
@@ -592,13 +600,6 @@
             border: 2px solid #b48b5a;
         }
         .toast.show { opacity: 1; }
-        .notice-card h2 {
-            font-size: 1.05rem;
-            line-height: 1.5;
-            max-width: 280px;
-            margin-left: auto;
-            margin-right: auto;
-        }
 
         .music-site-modal {
             display: none;
@@ -809,13 +810,26 @@
 <div class="gameover-modal" id="gameOverModal">
     <div class="gameover-card">
         <h2>游戏失败</h2>
-        <button class="btn" id="gameOverRestart" type="button">🍃 新一局</button>
+        <div class="modal-actions">
+            <button class="btn" id="gameOverRestart" type="button">🍃 新一局</button>
+        </div>
+    </div>
+</div>
+<div class="gameover-modal" id="winModal">
+    <div class="gameover-card">
+        <h2>恭喜您通关</h2>
+        <div class="modal-actions">
+            <button class="btn" id="winContinue" type="button">🎮 继续游玩</button>
+            <button class="btn" id="winRestart" type="button">🍃 新一局</button>
+        </div>
     </div>
 </div>
 <div class="gameover-modal" id="noticeModal">
-    <div class="gameover-card notice-card">
+    <div class="gameover-card">
         <h2 id="noticeText">提示</h2>
-        <button class="btn" id="noticeOk" type="button">知道了</button>
+        <div class="modal-actions">
+            <button class="btn" id="noticeOk" type="button">知道了</button>
+        </div>
     </div>
 </div>
 
@@ -1331,6 +1345,7 @@
         let fruits = [];
         let score = 0;
         let gameOver = false;
+        let winShown = false;
 
         let pendingFruit = null;
         let isDragging = false;
@@ -1438,6 +1453,7 @@
                     updateScore();
 
                     Body.setVelocity(newBody, { x: 0, y: -2 });
+                    if (newLevel >= RADII.length - 1) triggerWin();
                 }
             }
         }
@@ -1652,7 +1668,9 @@
             score = 0;
             updateScore();
             gameOver = false;
+            winShown = false;
             document.getElementById('gameOverModal').classList.remove('show');
+            document.getElementById('winModal').classList.remove('show');
             spawnPendingFruit();
         }
 
@@ -1660,11 +1678,23 @@
             if (gameOver) return;
             gameOver = true;
             isDragging = false;
+            document.getElementById('winModal').classList.remove('show');
             document.getElementById('gameOverModal').classList.add('show');
+        }
+
+        function triggerWin() {
+            if (gameOver || winShown) return;
+            winShown = true;
+            isDragging = false;
+            document.getElementById('winModal').classList.add('show');
         }
 
         document.getElementById('newGameBtn').addEventListener('click', startNewGame);
         document.getElementById('gameOverRestart').addEventListener('click', startNewGame);
+        document.getElementById('winRestart').addEventListener('click', startNewGame);
+        document.getElementById('winContinue').addEventListener('click', () => {
+            document.getElementById('winModal').classList.remove('show');
+        });
 
         Events.on(engine, 'collisionStart', handleCollision);
 
