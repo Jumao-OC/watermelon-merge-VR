@@ -4,7 +4,11 @@
 
 开局读取项目里的 `elements/`：12 个角色的图片、名字和合成音效会跟着仓库一起分发。浏览器里的预设只存在本机，不会跟着下载走。
 
-用浏览器直接打开项目里的 `index.html` 即可游玩。需要带上同级的 `elements/` 和 `music/`，不要只拷贝这一个 HTML 文件。
+## 🎮 在线试玩
+
+👉 [点击这里开始游戏](https://jumao-oc.github.io/watermelon-merge-VR/)
+
+也可以用浏览器直接打开项目里的 `index.html`。需要带上同级的 `elements/` 和 `music/`，不要只拷贝这一个 HTML 文件。
 
 ## ✨ 功能特色
 
