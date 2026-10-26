@@ -1447,7 +1447,8 @@
                     const newLevel = level + 1;
                     const newBody = createFruitBody(midX, midY, newLevel);
                     addFruitToWorld(newBody);
-                    playMergeSound(level);
+                    if (newLevel >= RADII.length - 1) playMergeSound(newLevel); // max fruit (joi) uses its own sfx
+                    else playMergeSound(level);
 
                     score += (newLevel + 1) * 15;
                     updateScore();
